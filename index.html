@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽籤系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .lottery-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .result-number {
+            font-size: 4em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            min-height: 1.2em;
+        }
+
+        .result-text {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-draw {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-draw:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-draw:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-draw:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .info {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 0.1s linear infinite;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 抽籤系統</h1>
+        <p class="subtitle">歡迎使用 1 到 22 號抽籤</p>
+
+        <div class="lottery-box">
+            <div class="result-number" id="result">-</div>
+            <div class="result-text" id="resultText"></div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-draw" id="drawBtn" onclick="drawLottery()">開始抽籤</button>
+            <button class="btn-reset" onclick="resetLottery()">重置</button>
+        </div>
+
+        <p class="info">點擊「開始抽籤」按鈕來抽取你的號碼</p>
+    </div>
+
+    <script>
+        let isDrawing = false;
+        let drawnNumber = null;
+
+        function drawLottery() {
+            if (isDrawing) return;
+
+            isDrawing = true;
+            const drawBtn = document.getElementById('drawBtn');
+            const resultDiv = document.getElementById('result');
+            const resultText = document.getElementById('resultText');
+
+            drawBtn.disabled = true;
+            resultDiv.classList.add('spinning');
+            resultText.textContent = '抽籤中...';
+
+            let animationFrames = 0;
+            const animationDuration = 2500; // 2.5 秒
+            const startTime = Date.now();
+
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const randomNum = Math.floor(Math.random() * 22) + 1;
+
+                resultDiv.textContent = String(randomNum).padStart(2, '0');
+
+                if (elapsed < animationDuration) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 動畫結束，顯示最終結果
+                    drawnNumber = Math.floor(Math.random() * 22) + 1;
+                    resultDiv.textContent = String(drawnNumber).padStart(2, '0');
+                    resultDiv.classList.remove('spinning');
+                    resultText.textContent = `✨ 恭喜！你抽到了第 ${drawnNumber} 號！`;
+
+                    isDrawing = false;
+                    drawBtn.disabled = false;
+                }
+            }
+
+            animate();
+        }
+
+        function resetLottery() {
+            document.getElementById('result').textContent = '-';
+            document.getElementById('result').classList.remove('spinning');
+            document.getElementById('resultText').textContent = '';
+            document.getElementById('drawBtn').disabled = false;
+            drawnNumber = null;
+        }
+
+        // 初始化
+        document.getElementById('drawBtn').disabled = false;
+    </script>
+</body>
+</html>
